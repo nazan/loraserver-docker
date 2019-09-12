@@ -5,6 +5,9 @@ services:
     image: loraserver/loraserver:3
     volumes:
       - ./configuration/loraserver:/etc/loraserver
+    networks:
+      mydockernet:
+        ipv4_address: 192.168.88.11
 
   appserver:
     image: loraserver/lora-app-server:3
@@ -12,6 +15,11 @@ services:
       - 8080:8080
     volumes:
       - ./configuration/lora-app-server:/etc/lora-app-server
+    extra_hosts:
+      - "lwdev-tracker.ioc:192.168.88.1"
+    networks:
+      mydockernet:
+        ipv4_address: 192.168.88.12
 
   gatewaybridge:
     image: loraserver/lora-gateway-bridge:3
@@ -19,28 +27,51 @@ services:
       - 1700:1700/udp
     volumes:
       - ./configuration/lora-gateway-bridge:/etc/lora-gateway-bridge
+    networks:
+      mydockernet:
+        ipv4_address: 192.168.88.13
 
   geoserver:
     image: loraserver/lora-geo-server:3
     volumes:
       - ./configuration/lora-geo-server:/etc/lora-geo-server
+    networks:
+      mydockernet:
+        ipv4_address: 192.168.88.14
 
   postgresql:
     image: postgres:9.6-alpine
     volumes:
       - ./configuration/postgresql/initdb:/docker-entrypoint-initdb.d
       - postgresqldata:/var/lib/postgresql/data
+    networks:
+      mydockernet:
+        ipv4_address: 192.168.88.15
 
   redis:
     image: redis:5-alpine
     volumes:
       - redisdata:/data
+    networks:
+      mydockernet:
+        ipv4_address: 192.168.88.16
 
   mosquitto:
     image: eclipse-mosquitto
     ports:
       - 1883:1883
+    networks:
+      mydockernet:
+        ipv4_address: 192.168.88.17
 
 volumes:
   postgresqldata:
   redisdata:
+
+networks:
+  mydockernet:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.88.0/24
